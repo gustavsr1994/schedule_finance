@@ -6,8 +6,20 @@ part 'task_state.dart';
 
 class TaskBloc extends Bloc<TaskEvent, TaskState> {
   TaskBloc() : super(TaskInitial()) {
-    on<TaskEvent>((event, emit) {
-      // TODO: implement event handler
+    on<InitialPage>((event, emit) {
+      emit(TaskSuccess(
+          statusHidden: event.statusHidden,
+          statusThemeDark: event.statusThemeDark));
+    });
+    on<ChangeHiddenValue>((event, emit) {
+      emit(TaskSuccess(
+          statusHidden: !event.statusHidden,
+          statusThemeDark: event.statusThemeDark));
+    });
+    on<ChangeThemeDarkValue>((event, emit) {
+      emit(TaskSuccess(
+          statusHidden: event.statusHidden,
+          statusThemeDark: !event.statusThemeDark));
     });
   }
 }
