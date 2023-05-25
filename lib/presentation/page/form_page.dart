@@ -3,17 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:schedule_finance/presentation/assets/color_pallete.dart';
 
-class FormPage extends StatelessWidget {
+class FormPage extends StatefulWidget {
   final String title;
   FormPage(this.title, {Key? key}) : super(key: key);
 
+  @override
+  State<FormPage> createState() => _FormPageState();
+}
+
+class _FormPageState extends State<FormPage> {
   TextEditingController subjectText = TextEditingController();
+
   FocusNode subjectFocus = FocusNode();
 
   TextEditingController amountText = TextEditingController();
+
   FocusNode amountFocus = FocusNode();
 
   TextEditingController accountBankText = TextEditingController();
+
   FocusNode accountBankFocus = FocusNode();
 
   @override
@@ -21,7 +29,7 @@ class FormPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: colorPrimaryDark,
-        title: Text(title),
+        title: Text(widget.title),
       ),
       body: ListView(
         children: [

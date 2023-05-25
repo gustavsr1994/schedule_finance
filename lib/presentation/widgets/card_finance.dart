@@ -26,7 +26,9 @@ class CardFinance extends StatelessWidget {
               checkColor: colorWhite,
               activeColor: colorPrimary,
               shape: const CircleBorder(side: BorderSide(color: colorPrimary)),
-              onChanged: (value) {},
+              onChanged: (value) {
+                selectFinance(data.id, value!);
+              },
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,5 +65,11 @@ class CardFinance extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void selectFinance(String id, bool status) async {
+    final CollectionReference _product =
+        FirebaseFirestore.instance.collection('task');
+    await _product.doc(id).update({'Status': status});
   }
 }

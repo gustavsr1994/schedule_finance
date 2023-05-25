@@ -1,23 +1,23 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
-part 'task_event.dart';
-part 'task_state.dart';
+part 'theme_event.dart';
+part 'theme_state.dart';
 
-class TaskBloc extends Bloc<TaskEvent, TaskState> {
-  TaskBloc() : super(TaskInitial()) {
+class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
+  ThemeBloc() : super(ThemeInitial()) {
     on<InitialPage>((event, emit) {
-      emit(TaskSuccess(
+      emit(ThemeSuccess(
           statusHidden: event.statusHidden,
           statusThemeDark: event.statusThemeDark));
     });
     on<ChangeHiddenValue>((event, emit) {
-      emit(TaskSuccess(
+      emit(ThemeSuccess(
           statusHidden: !event.statusHidden,
           statusThemeDark: event.statusThemeDark));
     });
     on<ChangeThemeDarkValue>((event, emit) {
-      emit(TaskSuccess(
+      emit(ThemeSuccess(
           statusHidden: event.statusHidden,
           statusThemeDark: !event.statusThemeDark));
     });

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:schedule_finance/presentation/assets/color_pallete.dart';
-import 'package:schedule_finance/presentation/controller/bloc/task_bloc.dart';
+import 'package:schedule_finance/presentation/common/formatter_string.dart';
+import 'package:schedule_finance/presentation/controller/bloc/theme_bloc.dart';
 import 'package:schedule_finance/presentation/page/form_page.dart';
 import 'package:schedule_finance/presentation/widgets/card_finance.dart';
+import 'package:schedule_finance/presentation/widgets/card_income.dart';
 
 class ListTaskPage extends StatefulWidget {
   const ListTaskPage({Key? key}) : super(key: key);
@@ -15,42 +17,49 @@ class ListTaskPage extends StatefulWidget {
 }
 
 class _ListTaskPageState extends State<ListTaskPage> {
-  // snapshot.data!.docs
   @override
   void initState() {
     super.initState();
     context
-        .read<TaskBloc>()
+        .read<ThemeBloc>()
         .add(InitialPage(statusHidden: true, statusThemeDark: false));
+    // getIncome();
   }
+
+  // void getIncome() async {
+  //   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  //   CollectionReference listFinance = firestore.collection('task');
+  //   var item = await listFinance.get();
+  //   print(item.docs.length);
+  // }
 
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     CollectionReference listFinance = firestore.collection('task');
 
-    return BlocBuilder<TaskBloc, TaskState>(
+    return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: state is TaskSuccess
+            backgroundColor: state is ThemeSuccess
                 ? state.statusThemeDark
                     ? colorWhite
                     : colorPrimary
                 : colorPrimary,
             title: Text('Schedule My Finance',
                 style: TextStyle(
-                  color: state is TaskSuccess
+                  color: state is ThemeSuccess
                       ? state.statusThemeDark
                           ? colorPrimary
                           : colorWhite
                       : colorWhite,
                 )),
           ),
-          body: BlocBuilder<TaskBloc, TaskState>(
+          body: BlocBuilder<ThemeBloc, ThemeState>(
             builder: (context, state) {
               return Container(
-                color: state is TaskSuccess
+                color: state is ThemeSuccess
                     ? state.statusThemeDark
                         ? colorPrimary
                         : colorWhite
@@ -67,14 +76,14 @@ class _ListTaskPageState extends State<ListTaskPage> {
                             elevation: 3,
                             shape: RoundedRectangleBorder(
                                 side: BorderSide(
-                                  color: state is TaskSuccess
+                                  color: state is ThemeSuccess
                                       ? state.statusThemeDark
                                           ? colorWhite
                                           : colorPrimary
                                       : colorPrimary,
                                 ),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(15))),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(15))),
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: Column(
@@ -92,11 +101,36 @@ class _ListTaskPageState extends State<ListTaskPage> {
                                       stream: listFinance.snapshots(),
                                       builder: (_, snapshot) {
                                         if (snapshot.hasData) {
-                                          return Text(
-                                            "Complete : ${snapshot.data!.docs.where((element) => element['Status'] == true).length} / ${snapshot.data!.docs.length}",
-                                            style: const TextStyle(
-                                                color: colorWhite,
-                                                fontSize: 20),
+                                          return Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Complete : ${snapshot.data!.docs.where((element) => element['Status'] == true).length} / ${snapshot.data!.docs.length}",
+                                                style: const TextStyle(
+                                                    color: colorWhite,
+                                                    fontSize: 20),
+                                              ),
+                                              state is ThemeSuccess
+                                                  ? state.statusHidden
+                                                      ? const Text(
+                                                          "Total : IDR ***",
+                                                          style: TextStyle(
+                                                              color: colorWhite,
+                                                              fontSize: 20))
+                                                      : Text(
+                                                          "Total : ${FormatterString.formatterCurrency(snapshot.data!.docs.map((element) => element['Amount']).reduce((value, element) => value + element))}",
+                                                          style: const TextStyle(
+                                                              color: colorWhite,
+                                                              fontSize: 20),
+                                                        )
+                                                  : const Text(
+                                                      "Total : IDR xxx",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 20),
+                                                    )
+                                            ],
                                           );
                                         } else {
                                           return const SizedBox();
@@ -143,7 +177,7 @@ class _ListTaskPageState extends State<ListTaskPage> {
                         ),
                       ],
                     ),
-                    BlocBuilder<TaskBloc, TaskState>(
+                    BlocBuilder<ThemeBloc, ThemeState>(
                       builder: (context, state) {
                         return Padding(
                           padding: const EdgeInsets.all(10),
@@ -171,32 +205,32 @@ class _ListTaskPageState extends State<ListTaskPage> {
                                         Row(
                                           children: [
                                             Icon(Icons.visibility,
-                                                color: state is TaskSuccess
+                                                color: state is ThemeSuccess
                                                     ? state.statusHidden
                                                         ? colorGray
                                                         : colorPrimaryDark
                                                     : colorGray),
                                             Switch(
-                                              value: state is TaskSuccess
+                                              value: state is ThemeSuccess
                                                   ? state.statusHidden
                                                   : true,
                                               activeColor: colorPrimary,
                                               inactiveTrackColor: colorGray,
                                               onChanged: (value) => context
-                                                  .read<TaskBloc>()
+                                                  .read<ThemeBloc>()
                                                   .add(ChangeHiddenValue(
                                                     statusHidden:
-                                                        state is TaskSuccess
+                                                        state is ThemeSuccess
                                                             ? state.statusHidden
                                                             : true,
                                                     statusThemeDark: state
-                                                            is TaskSuccess
+                                                            is ThemeSuccess
                                                         ? state.statusThemeDark
                                                         : false,
                                                   )),
                                             ),
                                             Icon(Icons.visibility_off,
-                                                color: state is TaskSuccess
+                                                color: state is ThemeSuccess
                                                     ? state.statusHidden
                                                         ? colorPrimaryDark
                                                         : colorGray
@@ -219,32 +253,32 @@ class _ListTaskPageState extends State<ListTaskPage> {
                                         Row(
                                           children: [
                                             Icon(Icons.sunny,
-                                                color: state is TaskSuccess
+                                                color: state is ThemeSuccess
                                                     ? state.statusThemeDark
                                                         ? colorGray
                                                         : colorPrimaryDark
                                                     : colorGray),
                                             Switch(
-                                              value: state is TaskSuccess
+                                              value: state is ThemeSuccess
                                                   ? state.statusThemeDark
                                                   : true,
                                               activeColor: colorPrimary,
                                               inactiveTrackColor: colorGray,
                                               onChanged: (value) => context
-                                                  .read<TaskBloc>()
+                                                  .read<ThemeBloc>()
                                                   .add(ChangeThemeDarkValue(
                                                     statusHidden:
-                                                        state is TaskSuccess
+                                                        state is ThemeSuccess
                                                             ? state.statusHidden
                                                             : true,
                                                     statusThemeDark: state
-                                                            is TaskSuccess
+                                                            is ThemeSuccess
                                                         ? state.statusThemeDark
                                                         : false,
                                                   )),
                                             ),
                                             Icon(Icons.nightlight,
-                                                color: state is TaskSuccess
+                                                color: state is ThemeSuccess
                                                     ? state.statusThemeDark
                                                         ? colorPrimaryDark
                                                         : colorGray
@@ -259,8 +293,33 @@ class _ListTaskPageState extends State<ListTaskPage> {
                         );
                       },
                     ),
+                    // Expanded(
+                    //   flex: 1,
+                    //   child: BlocBuilder<ThemeBloc, ThemeState>(
+                    //     builder: (context, state) {
+                    //       return StreamBuilder<QuerySnapshot>(
+                    //           stream: listIncome.snapshots(),
+                    //           builder: (_, snapshot) {
+                    //             if (snapshot.hasData) {
+                    //               return ListView.builder(
+                    //                   itemCount: snapshot.data!.docs.length,
+                    //                   shrinkWrap: true,
+                    //                   itemBuilder: (context, index) =>
+                    //                       CardIncome(
+                    //                           snapshot.data!.docs[index],
+                    //                           state is ThemeSuccess
+                    //                               ? state.statusHidden
+                    //                               : true));
+                    //             } else {
+                    //               return Text("${snapshot.error}");
+                    //             }
+                    //           });
+                    //     },
+                    //   ),
+                    // ),
                     Expanded(
-                      child: BlocBuilder<TaskBloc, TaskState>(
+                      flex: 2,
+                      child: BlocBuilder<ThemeBloc, ThemeState>(
                         builder: (context, state) {
                           return StreamBuilder<QuerySnapshot>(
                               stream: listFinance.snapshots(),
@@ -272,7 +331,7 @@ class _ListTaskPageState extends State<ListTaskPage> {
                                       itemBuilder: (context, index) =>
                                           CardFinance(
                                               snapshot.data!.docs[index],
-                                              state is TaskSuccess
+                                              state is ThemeSuccess
                                                   ? state.statusHidden
                                                   : true));
                                 } else {
