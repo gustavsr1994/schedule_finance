@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:schedule_finance/presentation/assets/color_pallete.dart';
 import 'package:schedule_finance/presentation/common/formatter_string.dart';
@@ -8,6 +11,8 @@ import 'package:schedule_finance/presentation/controller/bloc/theme_bloc.dart';
 import 'package:schedule_finance/presentation/page/form_page.dart';
 import 'package:schedule_finance/presentation/widgets/card_finance.dart';
 import 'package:schedule_finance/presentation/widgets/card_income.dart';
+
+import '../assets/utils.dart';
 
 class ListTaskPage extends StatefulWidget {
   const ListTaskPage({Key? key}) : super(key: key);
@@ -17,9 +22,13 @@ class ListTaskPage extends StatefulWidget {
 }
 
 class _ListTaskPageState extends State<ListTaskPage> {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   @override
   void initState() {
     super.initState();
+
     context
         .read<ThemeBloc>()
         .add(InitialPage(statusHidden: true, statusThemeDark: false));
@@ -293,6 +302,9 @@ class _ListTaskPageState extends State<ListTaskPage> {
                         );
                       },
                     ),
+                    ElevatedButton(
+                        onPressed: () => _showNotification(),
+                        child: Text("Notification"))
                     // Expanded(
                     //   flex: 1,
                     //   child: BlocBuilder<ThemeBloc, ThemeState>(
@@ -317,30 +329,30 @@ class _ListTaskPageState extends State<ListTaskPage> {
                     //     },
                     //   ),
                     // ),
-                    Expanded(
-                      flex: 2,
-                      child: BlocBuilder<ThemeBloc, ThemeState>(
-                        builder: (context, state) {
-                          return StreamBuilder<QuerySnapshot>(
-                              stream: listFinance.snapshots(),
-                              builder: (_, snapshot) {
-                                if (snapshot.hasData) {
-                                  return ListView.builder(
-                                      itemCount: snapshot.data!.docs.length,
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) =>
-                                          CardFinance(
-                                              snapshot.data!.docs[index],
-                                              state is ThemeSuccess
-                                                  ? state.statusHidden
-                                                  : true));
-                                } else {
-                                  return Text("${snapshot.error}");
-                                }
-                              });
-                        },
-                      ),
-                    )
+                    // Expanded(
+                    //   flex: 2,
+                    //   child: BlocBuilder<ThemeBloc, ThemeState>(
+                    //     builder: (context, state) {
+                    //       return StreamBuilder<QuerySnapshot>(
+                    //           stream: listFinance.snapshots(),
+                    //           builder: (_, snapshot) {
+                    //             if (snapshot.hasData) {
+                    //               return ListView.builder(
+                    //                   itemCount: snapshot.data!.docs.length,
+                    //                   shrinkWrap: true,
+                    //                   itemBuilder: (context, index) =>
+                    //                       CardFinance(
+                    //                           snapshot.data!.docs[index],
+                    //                           state is ThemeSuccess
+                    //                               ? state.statusHidden
+                    //                               : true));
+                    //             } else {
+                    //               return Text("${snapshot.error}");
+                    //             }
+                    //           });
+                    //     },
+                    //   ),
+                    // )
                   ],
                 ),
               );
@@ -349,5 +361,25 @@ class _ListTaskPageState extends State<ListTaskPage> {
         );
       },
     );
+  }
+
+  void _showNotification() async {
+    final bigPicturePath = await Utils.downloadFile(
+        "https://pbs.twimg.com/profile_images/1624990846612549632/Hc0RW6F1_400x400.jpg",
+        "largeImage");
+    var androidPlatformChannel = AndroidNotificationDetails(
+        'channel_id1', 'channel_name',
+        channelDescription: 'channel_desc',
+        importance: Importance.max,
+        styleInformation: BigPictureStyleInformation(
+            FilePathAndroidBitmap(bigPicturePath),
+            contentTitle: "Test Notif",
+            summaryText: "Hello Welcome"));
+    var iOSPlatformChannel = DarwinNotificationDetails();
+    var platformChannel = NotificationDetails(
+        android: androidPlatformChannel, iOS: iOSPlatformChannel);
+
+    await flutterLocalNotificationsPlugin.show(
+        0, "Test Notif", "Hello Welcome", platformChannel);
   }
 }

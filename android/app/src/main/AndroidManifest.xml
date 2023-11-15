@@ -32,7 +32,8 @@
               />
             <meta-data
               android:name="com.google.firebase.messaging.default_notification_channel_id"
-              android:value="channel_id_1" />
+              android:resource="@drawable/notification_app"
+              android:value="channel_id_course_5" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
